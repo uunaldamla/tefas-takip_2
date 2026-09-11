@@ -1,0 +1,35 @@
+name: Update TEFAS data
+
+on:
+  schedule:
+    - cron: '0 6 * * 1-5'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  update-csv:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Repoyu indir
+        uses: actions/checkout@v4
+
+      - name: Python kur
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Kütüphaneleri kur
+        run: pip install -r requirements.txt
+
+      - name: Script'i çalıştır
+        run: python fonlar_gunluk_getiri.py
+
+      - name: CSV'leri depoya geri kaydet
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git add fonlar_gunluk_getiri.csv fonlar_1aylik_gecmis.csv
+          git diff --staged --quiet || git commit -m "Günlük veri güncellendi"
+          git push
